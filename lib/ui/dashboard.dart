@@ -19,6 +19,8 @@ class _DashBoardState extends State<DashBoard> {
   @override
   void initState() {
     super.initState();
+    final dataRepository = Provider.of<DataRepository>(context, listen: false);
+    _endpointsData = dataRepository.getAllEndpointsCachedData();
     _updateData();
   }
 
@@ -51,7 +53,7 @@ class _DashBoardState extends State<DashBoard> {
   Widget build(BuildContext context) {
     final formatter = LastUpdatedDateFormatter(
         lastUpdated: _endpointsData != null
-            ? _endpointsData!.values[Endpoint.cases]!.date!
+            ? _endpointsData!.values[Endpoint.cases]?.date!
             : null);
     return Scaffold(
       appBar: AppBar(

@@ -1,5 +1,6 @@
 import 'package:covid_tracker/app/services/api.dart';
 import 'package:covid_tracker/app/services/api_services.dart';
+import 'package:covid_tracker/app/services/data_cache_services.dart';
 import 'package:covid_tracker/app/services/endpoint_data.dart';
 import 'package:covid_tracker/app/services/repositories/endpoints_data.dart';
 import 'package:http/http.dart';
@@ -9,7 +10,11 @@ class DataRepository {
 
   String? _accessToken;
 
-  DataRepository({required this.apiService});
+  final DataCacheServices dataCacheService;
+
+  DataRepository({required this.apiService, required this.dataCacheService});
+
+  EndpointsData getAllEndpointsCachedData() => dataCacheService.getData();
 
   Future<EndpointData> getEndpointData(Endpoint endpoint) async =>
       await _getDataRefreshingToken<EndpointData>(
@@ -17,10 +22,13 @@ class DataRepository {
             accessToken: _accessToken!, endpoint: endpoint),
       );
 
-  Future<EndpointsData> getAllEndpointsData() async =>
-      await _getDataRefreshingToken<EndpointsData>(
-        onGetData: _getAllEndpointsData,
-      );
+  Future<EndpointsData> getAllEndpointsData() async {
+    final endpointsData = await _getDataRefreshingToken<EndpointsData>(
+      onGetData: _getAllEndpointsData,
+    );
+    await dataCacheService.setData(endpointsData);
+    return endpointsData;
+  }
 
   Future<T> _getDataRefreshingToken<T>(
       {required Future<T> Function() onGetData}) async {
