@@ -1,7 +1,8 @@
 import 'package:covid_tracker/app/services/api.dart';
 import 'package:covid_tracker/app/services/repositories/data_repository.dart';
-import 'package:covid_tracker/app/services/repositories/endpoint_data.dart';
+import 'package:covid_tracker/app/services/repositories/endpoints_data.dart';
 import 'package:covid_tracker/ui/endpoint_card.dart';
+import 'package:covid_tracker/ui/last_updated_status_text.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -11,7 +12,7 @@ class DashBoard extends StatefulWidget {
 }
 
 class _DashBoardState extends State<DashBoard> {
-  EndpointData? _endpointsData;
+  EndpointsData? _endpointsData;
 
   @override
   void initState() {
@@ -29,6 +30,10 @@ class _DashBoardState extends State<DashBoard> {
 
   @override
   Widget build(BuildContext context) {
+    final formatter = LastUpdatedDateFormatter(
+        lastUpdated: _endpointsData != null
+            ? _endpointsData!.values[Endpoint.cases]!.date!
+            : null);
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -41,13 +46,15 @@ class _DashBoardState extends State<DashBoard> {
         onRefresh: _updateData,
         child: ListView(
           children: [
-            for (var endpoint in Endpoint.values)
-              EndPointCard(
-                endpoint: endpoint,
-                value: _endpointsData != null
-                    ? _endpointsData!.values[endpoint]
-                    : null,
-              )
+            LastUpdatedStatustext(
+              text: formatter.lastUpdatedStatusText(),
+            ),
+            if (_endpointsData != null)
+              for (var endpoint in Endpoint.values)
+                EndPointCard(
+                  endpoint: endpoint,
+                  value: _endpointsData!.values[endpoint]?.value,
+                )
           ],
         ),
       ),

@@ -3,9 +3,13 @@ import 'package:covid_tracker/app/services/api_services.dart';
 import 'package:covid_tracker/app/services/repositories/data_repository.dart';
 import 'package:covid_tracker/ui/dashboard.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-void main() {
+void main() async {
+  Intl.defaultLocale = "en_GB";
+  await initializeDateFormatting();
   runApp(MyApp());
 }
 

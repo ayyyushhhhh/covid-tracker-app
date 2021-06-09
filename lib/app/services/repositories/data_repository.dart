@@ -1,22 +1,24 @@
 import 'package:covid_tracker/app/services/api.dart';
 import 'package:covid_tracker/app/services/api_services.dart';
-import 'package:covid_tracker/app/services/repositories/endpoint_data.dart';
+import 'package:covid_tracker/app/services/endpoint_data.dart';
+import 'package:covid_tracker/app/services/repositories/endpoints_data.dart';
 import 'package:http/http.dart';
 
 class DataRepository {
   final APIService apiService;
-  DataRepository({required this.apiService});
 
   String? _accessToken;
 
-  Future<int> getEndpointData(Endpoint endpoint) async =>
-      await _getDataRefreshingToken<int>(
+  DataRepository({required this.apiService});
+
+  Future<EndpointData> getEndpointData(Endpoint endpoint) async =>
+      await _getDataRefreshingToken<EndpointData>(
         onGetData: () => apiService.getEndpointData(
-            accessToken: _accessToken.toString(), endpoint: endpoint),
+            accessToken: _accessToken!, endpoint: endpoint),
       );
 
-  Future<EndpointData> getAllEndpointsData() async =>
-      await _getDataRefreshingToken<EndpointData>(
+  Future<EndpointsData> getAllEndpointsData() async =>
+      await _getDataRefreshingToken<EndpointsData>(
         onGetData: _getAllEndpointsData,
       );
 
@@ -37,22 +39,20 @@ class DataRepository {
     }
   }
 
-  Future<EndpointData> _getAllEndpointsData() async {
+  Future<EndpointsData> _getAllEndpointsData() async {
     final values = await Future.wait([
       apiService.getEndpointData(
-          accessToken: _accessToken.toString(), endpoint: Endpoint.cases),
+          accessToken: _accessToken!, endpoint: Endpoint.cases),
       apiService.getEndpointData(
-          accessToken: _accessToken.toString(),
-          endpoint: Endpoint.casesSuspected),
+          accessToken: _accessToken!, endpoint: Endpoint.casesSuspected),
       apiService.getEndpointData(
-          accessToken: _accessToken.toString(),
-          endpoint: Endpoint.casesConfirmed),
+          accessToken: _accessToken!, endpoint: Endpoint.casesConfirmed),
       // apiService.getEndpointData(
-      //     accessToken: _accessToken.toString(), endpoint: Endpoint.deaths),
+      //     accessToken: _accessToken!, endpoint: Endpoint.deaths),
       apiService.getEndpointData(
-          accessToken: _accessToken.toString(), endpoint: Endpoint.recovered),
+          accessToken: _accessToken!, endpoint: Endpoint.recovered),
     ]);
-    return EndpointData(
+    return EndpointsData(
       values: {
         Endpoint.cases: values[0],
         Endpoint.casesSuspected: values[1],
